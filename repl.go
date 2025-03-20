@@ -60,22 +60,3 @@ func cleanInput(text string) []string {
 	words := strings.Fields(lowerText)
 	return words
 }
-
-func commandExit() error {
-	fmt.Print("Closing the Pokedex... Goodbye!")
-	os.Exit(0)
-	return nil
-}
-
-func commandHelp() error {
-	commands := getCommands()
-
-	fmt.Println("Welcome to the Pokedex!")
-	fmt.Println("Usage:\n")
-
-	for _, command := range commands {
-		fmt.Printf("%s: %s\n", command.name, command.description)
-	}
-
-	return nil
-}
