@@ -4,12 +4,14 @@ import (
 	"time"
 
 	"github.com/drogovski/pokedexcli/internal/pokeapi"
+	"github.com/drogovski/pokedexcli/internal/pokecache"
 )
 
 func main() {
-	pokeClient := pokeapi.NewClient(5 * time.Second)
+	pokeCache := pokecache.NewCache(5 * time.Second)
+	pokeClient := pokeapi.NewClient(pokeCache, 5*time.Second)
 	cfg := &config{
-		pokeapiClient: pokeClient,
+		pokeapiClient: &pokeClient,
 	}
 	startRepl(cfg)
 }
