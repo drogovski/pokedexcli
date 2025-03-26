@@ -9,6 +9,15 @@ import (
 func (c *Client) GetPokemon(name string) (Pokemon, error) {
 	url := pokemonUrl + name
 
+	if val, ok := c.cache.Get(url); ok {
+		pokemonResp := Pokemon{}
+		err := json.Unmarshal(val, &pokemonResp)
+		if err != nil {
+			return Pokemon{}, err
+		}
+		return pokemonResp, nil
+	}
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return Pokemon{}, err
@@ -25,12 +34,13 @@ func (c *Client) GetPokemon(name string) (Pokemon, error) {
 		return Pokemon{}, err
 	}
 
-	pokemon := Pokemon{}
-	err = json.Unmarshal(data, &pokemon)
-
+	pokemonResp := Pokemon{}
+	err = json.Unmarshal(data, &pokemonResp)
 	if err != nil {
 		return Pokemon{}, err
 	}
 
-	return pokemon, nil
+	c.cache.Add(url, data)
+
+	return pokemonResp, nil
 }
