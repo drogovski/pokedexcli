@@ -12,7 +12,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(conf *config) error
+	callback    func(conf *config, param string) error
 }
 
 type config struct {
@@ -29,10 +29,14 @@ func startRepl(cfg *config) {
 		reader.Scan()
 		userInput := cleanInput(reader.Text())
 
+		var err error
 		if len(userInput) == 0 {
 			continue
+		} else if len(userInput) == 1 {
+			err = executeCommand(userInput[0], "", cfg)
+		} else {
+			err = executeCommand(userInput[0], userInput[1], cfg)
 		}
-		err := executeCommand(userInput[0], cfg)
 
 		if err != nil {
 			fmt.Println(err)
@@ -50,13 +54,18 @@ func getCommands() map[string]cliCommand {
 		},
 		"map": {
 			name:        "map",
-			description: "Returns next 20 locations from pokedex API",
+			description: "Shows next 20 locations from pokedex API",
 			callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "mapb",
-			description: "Returns previous 20 locations from pokedex API",
+			description: "Shows previous 20 locations from pokedex API",
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Shows all pokemons that can be encountered in provided area",
+			callback:    commandExplore,
 		},
 		"exit": {
 			name:        "exit",
@@ -66,12 +75,12 @@ func getCommands() map[string]cliCommand {
 	}
 }
 
-func executeCommand(input string, cfg *config) error {
+func executeCommand(input, param string, cfg *config) error {
 	commands := getCommands()
 
 	command, exists := commands[input]
 	if exists {
-		err := command.callback(cfg)
+		err := command.callback(cfg, param)
 		if err != nil {
 			return err
 		}
