@@ -7,7 +7,7 @@ import (
 	"github.com/drogovski/pokedexcli/internal/pokeapi"
 )
 
-func commandMapf(cfg *config, param string) error {
+func commandMapf(cfg *config, args ...string) error {
 	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
 	if err != nil {
 		return err
@@ -20,7 +20,7 @@ func commandMapf(cfg *config, param string) error {
 	return nil
 }
 
-func commandMapb(cfg *config, param string) error {
+func commandMapb(cfg *config, args ...string) error {
 	if cfg.previousLocationsURL == nil {
 		return errors.New("you're on the first page")
 	}
@@ -37,7 +37,7 @@ func commandMapb(cfg *config, param string) error {
 	return nil
 }
 
-func showLocations(locations []pokeapi.Location) {
+func showLocations(locations []pokeapi.ShallowLocation) {
 	for _, location := range locations {
 		fmt.Println(location.Name)
 	}

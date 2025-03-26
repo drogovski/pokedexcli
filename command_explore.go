@@ -1,25 +1,32 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/drogovski/pokedexcli/internal/pokeapi"
 )
 
-func commandExplore(cfg *config, param string) error {
-	fmt.Println("Exploring pastoria-city-area...")
-	pokemonResp, err := cfg.pokeapiClient.ExploreLocation(param)
+func commandExplore(cfg *config, args ...string) error {
+	if len(args) != 1 {
+		return errors.New("you must provide a location name")
+	}
+
+	name := args[0]
+	location, err := cfg.pokeapiClient.GetLocation(name)
 	if err != nil {
 		return err
 	}
-	showPokemonsInArea(pokemonResp.PokemonEncounters)
 
-	return err
+	fmt.Printf("Exploring %s...\n", location.Name)
+	showPokemonsInArea(location)
+
+	return nil
 }
 
-func showPokemonsInArea(encounters []pokeapi.PokemonEncounter) {
+func showPokemonsInArea(location pokeapi.Location) {
 	fmt.Println("Found Pokemon:")
-	for _, encounter := range encounters {
-		fmt.Printf(" - %s\n", encounter.Pokemon.Name)
+	for _, location := range location.PokemonEncounters {
+		fmt.Printf(" - %s\n", location.Pokemon.Name)
 	}
 }

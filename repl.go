@@ -12,7 +12,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(conf *config, param string) error
+	callback    func(conf *config, args ...string) error
 }
 
 type config struct {
@@ -27,16 +27,19 @@ func startRepl(cfg *config) {
 	for {
 		fmt.Print("Pokedex > ")
 		reader.Scan()
-		userInput := cleanInput(reader.Text())
 
-		var err error
+		userInput := cleanInput(reader.Text())
 		if len(userInput) == 0 {
 			continue
-		} else if len(userInput) == 1 {
-			err = executeCommand(userInput[0], "", cfg)
-		} else {
-			err = executeCommand(userInput[0], userInput[1], cfg)
 		}
+
+		commandName := userInput[0]
+		args := []string{}
+		if len(userInput) > 1 {
+			args = userInput[1:]
+		}
+
+		err := executeCommand(commandName, cfg, args...)
 
 		if err != nil {
 			fmt.Println(err)
@@ -75,12 +78,12 @@ func getCommands() map[string]cliCommand {
 	}
 }
 
-func executeCommand(input, param string, cfg *config) error {
+func executeCommand(commandName string, cfg *config, args ...string) error {
 	commands := getCommands()
 
-	command, exists := commands[input]
+	command, exists := commands[commandName]
 	if exists {
-		err := command.callback(cfg, param)
+		err := command.callback(cfg, args...)
 		if err != nil {
 			return err
 		}
